@@ -13,7 +13,7 @@
 <body>
     <div class="note-wrapper" id="note">
         <input type="text" placeholder="Title" class="note-title hidden" name="title" id="title">
-        <input type="text" placeholder="Take a note.." class="note-content" name="note" id="note-body">
+        <input type="text" placeholder="Take a note.." class="note-description" name="note" id="note-description">
         <div class="item-section hidden" id="item-section">
             <i class="material-icons item-section-icons">color_lens</i>
             <i class="material-icons item-section-icons">label</i>
@@ -21,7 +21,18 @@
         </div>
     </div>
     <div class="" id="notes-area">
-
+        <div id="outlet"></div>
+        <template>
+            <div class="note-area-content">
+                <h2 class="note-area-content-title"></h2>
+                <p class="note-area-content-body"></p>
+                <div class="note-area-content-footer">
+                    <i class="material-icons item-section-icons">color_lens</i>
+                    <i class="material-icons item-section-icons">label</i>
+                    <i class="material-icons item-section-icons">delete</i>
+                </div>
+            </div>
+        </template>
     </div>
 
     <script type="text/javascript" src="./app/main.js"></script>
