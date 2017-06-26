@@ -4,10 +4,11 @@ let isToggled = false;
 let pageBody = document.body;
 let note = document.getElementById('note');
 let submitNew = document.getElementById('new-entry');
+let notesArray = [];
 
 // Call event listeners
 listeners();
-
+init();
 /**
  * Function will toggle note element's hidden items
  * If the note isn't toggled and the click was on the note it will display the whole note
@@ -52,6 +53,7 @@ function saveNote() {
     p.textContent = data.description;
     document.querySelector('#outlet')
         .appendChild(document.importNode(template, true));
+    console.log(notesArray);
 }
 
 /**
@@ -60,8 +62,51 @@ function saveNote() {
 function getNoteData() {
     let title = document.getElementById('title').value;
     let description = document.getElementById('note-description').value;
+    let noteData = {title, description};
+    retainData(noteData);
 
-    return {title, description};
+    return noteData;
+}
+
+/**
+ * Save data to localstorage
+ */
+function retainData(data) {
+    notesArray = [];
+    notesArray.push(data);
+    localStorage.removeItem('notes');
+    localStorage.setItem('notes', JSON.stringify(notesArray));
+}
+
+/**
+ * Retrieve data from localstorage
+ */
+function getStoredData() {
+    notesArray = [];
+    notesArray.push(JSON.parse(localStorage.getItem('notes')));
+}
+
+function init() {
+    getStoredData();
+    renderStoredNotes();
+}
+
+/**
+ * buggy with the saving in local storage
+ */
+function renderStoredNotes() {
+
+    notesArray.forEach(function(note) {
+        console.log(note);
+        let template = document.querySelector('template').content;
+        let h2 = template.querySelector('h2');
+        let p = template.querySelector('p');
+
+        h2.textContent = note.title;
+        p.textContent = note.description;
+        document.querySelector('#outlet')
+            .appendChild(document.importNode(template, true));
+    })
 }
 
 function listeners() {
