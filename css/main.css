@@ -1,0 +1,50 @@
+body {
+    background-color: rgba(150,150,150,.25);
+}
+.note-wrapper {
+    width: 600px;
+    height: 46px;
+    margin: auto;
+    margin-top: 80px;
+    text-align: center;
+    background-color: rgb(250, 250, 250);
+    box-shadow: 1px 1px 1px rgba(150,150,150,.85);
+}
+
+.note-content,
+.note-title,
+.item-section {
+    width: 550px;
+    height: 46px;
+    border: none;
+    margin: 0 auto;
+}
+
+.item-section-icons {
+    float: left;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.note-btn {
+    float: right;
+    padding: 8px;
+    border: none;
+    background-color: rgb(250, 250, 250);
+}
+
+.note-btn:hover {
+    border-radius: 10px;
+    background-color: rgba(150,150,150,.35);
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+.note-content:focus,
+.note-title:focus,
+.note-btn {
+    outline: none;
+}
