@@ -43,7 +43,25 @@ function toggle(param) {
  * Creates an element on the page to display it
  */
 function saveNote() {
-    
+    let template = document.querySelector('template').content;
+    let h2 = template.querySelector('h2');
+    let p = template.querySelector('p');
+    let data = getNoteData();
+
+    h2.textContent = data.title;
+    p.textContent = data.description;
+    document.querySelector('#outlet')
+        .appendChild(document.importNode(template, true));
+}
+
+/**
+ * Method to retrieve a note's title and description
+ */
+function getNoteData() {
+    let title = document.getElementById('title').value;
+    let description = document.getElementById('note-description').value;
+
+    return {title, description};
 }
 
 function listeners() {
