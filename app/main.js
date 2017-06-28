@@ -55,23 +55,18 @@ function renderNote(data) {
     let template = document.querySelector('template').content;
     let h2 = template.querySelector('h2');
     let p = template.querySelector('p');
-    let deleteBtn = template.querySelector('.js-delete');
-    let colorLens = template.querySelector('.js-color-lens');
+    let deleteBtnElm = template.querySelector('.js-delete');
+    let colorLensElm = template.querySelector('.js-color-lens');
     let deleteBtnId = 'delete_' + counter;
     let colorLensId = 'colorlens_' + counter;
 
     h2.textContent = data.title;
     p.textContent = data.description;
-    deleteBtn.id = deleteBtnId;
-    colorLens.id = colorLensId;
+    deleteBtnElm.id = deleteBtnId;
+    colorLensElm.id = colorLensId;
 
     document.querySelector('#outlet')
         .appendChild(document.importNode(template, true));
-
-    let parent = colorLens.parentNode;
-    let colorPaletteElm = parent.querySelector('.color-palette');
-
-    renderColors(colorPaletteElm);
 
     setTemplateListeners(deleteBtnId, colorLensId);
     counter++;
@@ -91,6 +86,7 @@ function saveNote() {
 function getNoteData() {
     let title = document.getElementById('title').value;
     let description = document.getElementById('note-description').value;
+    let color = '#ffffff';
     let noteData = { title, description };
 
     retainData(noteData);
@@ -136,7 +132,6 @@ function renderStoredNotes() {
 
 /**
  * Function to remove a note
- * @param {event} event 
  */
 function removeNotes(e) {
     let btn = e.target;
@@ -163,7 +158,7 @@ function removeElements() {
 }
 
 /**
- * Toggle color view
+ * Toggle color palette view
  */
 function showColors(target) {
     let parent = target.parentNode;
@@ -177,7 +172,6 @@ function showColors(target) {
 
 function renderColors(target) {
     let colorListWrapElement = document.createElement('ul');
-
     colorListWrapElement.className += 'label-list card-panel';
 
     if (!target.firstChild) {
@@ -185,12 +179,33 @@ function renderColors(target) {
 
         for (let i = 0; i < backgroundColors.length; i++) {
             let colorListElement = document.createElement('li');
-            colorListElement.className = '';
+            colorListElement.className = 'js-color-palette_' + i;
             colorListElement.setAttribute('data-color', backgroundColors[i]);
             colorListElement.setAttribute('style', 'background-color: ' + backgroundColors[i]);
             colorListWrapElement.appendChild(colorListElement);
+            onColorChangeListener(target, colorListElement);
         }
     }
+}
+
+/**
+ * Event listener for color change
+ */
+function onColorChangeListener(target, colorListElement) {
+    colorListElement.addEventListener('click', function(ev) {
+        ev.stopPropagation();
+        let elementToChange = target.parentNode.parentNode;
+        let color = colorListElement.getAttribute('data-color');
+
+        handleChangeElementColor(elementToChange, color)
+    })
+}
+
+/**
+ * Changes element color based on selected one from color palette
+ */
+function handleChangeElementColor(element, color) {
+    element.style.background = color;
 }
 
 /**
@@ -198,16 +213,16 @@ function renderColors(target) {
  */
 function setTemplateListeners(deleteBtnId, colorLensId) {
     let deleteBtn = document.querySelector('#' + deleteBtnId);
-    let colorLens = document.querySelector('#' + colorLensId);
+    let colorLensElm = document.querySelector('#' + colorLensId);
 
     deleteBtn.addEventListener('click', function (ev) {
         ev.stopPropagation();
         removeNotes(ev);
     });
 
-    colorLens.addEventListener('click', function (ev) {
+    colorLensElm.addEventListener('click', function (ev) {
         ev.stopPropagation();
-        showColors(colorLens);
+        showColors(colorLensElm);
     });
 }
 
