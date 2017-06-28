@@ -90,7 +90,7 @@ function getNoteData() {
     let title = document.getElementById('title').value;
     let description = document.getElementById('note-description').value;
     let color = '#ffffff';
-    let id = 'note-content_' + counter;
+    let id =  counter;
     let noteData = { id, title, description, color };
 
     retainData(noteData);
@@ -213,7 +213,7 @@ function handleChangeElementColor(element, color) {
 
 function saveColorValue(element, color) {
     let colorPaletteElm = element.querySelector('.color-palette');
-    let elemId = element.id;
+    let elemId = parseInt(element.id.split('_').pop());
 
     notesArray.forEach(function(note) {
         if(note.id === elemId) {
