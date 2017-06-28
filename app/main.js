@@ -131,7 +131,6 @@ function removeNotes(e) {
 
     notesArray.splice(index, index.length);
     localStorage.setItem('notes', JSON.stringify(notesArray));
-    init();
 }
 
 /**
