@@ -32,11 +32,11 @@ function toggle(param) {
     let title = document.getElementById('title');
     let btnItems = document.getElementById('item-section');
 
-    changeOnToggleState(title, btnItems);
+    changeInputOnToggleState(title, btnItems);
     isToggled = !isToggled;
 }
 
-function changeOnToggleState(title, btnItems) {
+function changeInputOnToggleState(title, btnItems) {
     if (isToggled) {
         title.style.display = 'none';
         note.style.height = '46px';
