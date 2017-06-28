@@ -7,9 +7,11 @@ let submitNew = document.getElementById('new-entry');
 let notesArray = [];
 let deleteId = 0;
 
+// Load stored notes
+init();
+
 // Call event listeners
 listeners();
-init();
 
 /**
  * Function will toggle note element's hidden items
