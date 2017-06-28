@@ -1,11 +1,13 @@
 'use strict';
 
 let isToggled = false;
+let isColorPalette = false;
 let pageBody = document.body;
 let note = document.getElementById('note');
 let submitNew = document.getElementById('new-entry');
 let notesArray = [];
-let deleteId = 0;
+let counter = 0;
+let backgroundColors = ['#ffffff', '#ff8a80', '#ffd180', '#ffff8d', '#cfd8dc', '#80d8ff', '#a7ffeb', '#ccff90'];
 
 // Load stored notes
 init();
@@ -28,19 +30,22 @@ function toggle(param) {
     }
 
     let title = document.getElementById('title');
-    let itemSection = document.getElementById('item-section');
+    let btnItems = document.getElementById('item-section');
 
+    changeOnToggleState(title, btnItems);
+    isToggled = !isToggled;
+}
+
+function changeOnToggleState(title, btnItems) {
     if (isToggled) {
         title.style.display = 'none';
         note.style.height = '46px';
-        itemSection.style.display = 'none';
+        btnItems.style.display = 'none';
     } else {
         title.style.display = 'block';
         note.style.height = '138px';
-        itemSection.style.display = 'block';
+        btnItems.style.display = 'block';
     }
-
-    isToggled = !isToggled;
 }
 
 /**
@@ -51,18 +56,25 @@ function renderNote(data) {
     let h2 = template.querySelector('h2');
     let p = template.querySelector('p');
     let deleteBtn = template.querySelector('.js-delete');
-    let deleteBtnId = 'delete_' + deleteId;
+    let colorLens = template.querySelector('.js-color-lens');
+    let deleteBtnId = 'delete_' + counter;
+    let colorLensId = 'colorlens_' + counter;
 
     h2.textContent = data.title;
     p.textContent = data.description;
     deleteBtn.id = deleteBtnId;
+    colorLens.id = colorLensId;
 
     document.querySelector('#outlet')
         .appendChild(document.importNode(template, true));
 
-    setTemplateDelete(deleteBtnId);
+    let parent = colorLens.parentNode;
+    let colorPaletteElm = parent.querySelector('.color-palette');
 
-    deleteId ++;
+    renderColors(colorPaletteElm);
+
+    setTemplateListeners(deleteBtnId, colorLensId);
+    counter++;
 }
 
 /**
@@ -80,7 +92,7 @@ function getNoteData() {
     let title = document.getElementById('title').value;
     let description = document.getElementById('note-description').value;
     let noteData = { title, description };
-    
+
     retainData(noteData);
     resetInputFields();
 
@@ -96,7 +108,6 @@ function resetInputFields() {
  * Save data to localstorage
  */
 function retainData(data) {
-    console.log(data);
     notesArray.push(data);
     localStorage.setItem('notes', JSON.stringify(notesArray));
 }
@@ -106,11 +117,10 @@ function retainData(data) {
  */
 function getStoredData() {
     notesArray = JSON.parse(localStorage.getItem('notes') || '[]');
-    console.log(localStorage.getItem('notes'));
 }
 
 function init() {
-    deleteId = 0;
+    counter = 0;
     getStoredData();
     renderStoredNotes();
 }
@@ -123,7 +133,6 @@ function renderStoredNotes() {
         renderNote(note);
     });
 }
-
 
 /**
  * Function to remove a note
@@ -144,9 +153,9 @@ function removeNotes(e) {
  * Remove elements from page
  */
 function removeElements() {
-    let area = document.querySelectorAll('.note-area-content');
+    let area = document.querySelectorAll('.js-note-area-content');
 
-    area.forEach(function(area) {
+    area.forEach(function (area) {
         area.remove();
     })
 
@@ -154,14 +163,51 @@ function removeElements() {
 }
 
 /**
+ * Toggle color view
+ */
+function showColors(target) {
+    let parent = target.parentNode;
+    let colorPaletteElm = parent.querySelector('.color-palette');
+
+    isColorPalette ? colorPaletteElm.style.display = 'none' : colorPaletteElm.style.display = 'block';
+    renderColors(colorPaletteElm);
+
+    isColorPalette = !isColorPalette;
+}
+
+function renderColors(target) {
+    let colorListWrapElement = document.createElement('ul');
+
+    colorListWrapElement.className += 'label-list card-panel';
+
+    if (!target.firstChild) {
+        target.appendChild(colorListWrapElement);
+
+        for (let i = 0; i < backgroundColors.length; i++) {
+            let colorListElement = document.createElement('li');
+            colorListElement.className = '';
+            colorListElement.setAttribute('data-color', backgroundColors[i]);
+            colorListElement.setAttribute('style', 'background-color: ' + backgroundColors[i]);
+            colorListWrapElement.appendChild(colorListElement);
+        }
+    }
+}
+
+/**
  * Adds event listeners on template delete buttons
  */
-function setTemplateDelete(deleteBtnId) {
+function setTemplateListeners(deleteBtnId, colorLensId) {
     let deleteBtn = document.querySelector('#' + deleteBtnId);
+    let colorLens = document.querySelector('#' + colorLensId);
 
     deleteBtn.addEventListener('click', function (ev) {
-        removeNotes(ev);
         ev.stopPropagation();
+        removeNotes(ev);
+    });
+
+    colorLens.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        showColors(colorLens);
     });
 }
 
