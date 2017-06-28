@@ -55,13 +55,16 @@ function renderNote(data) {
     let template = document.querySelector('template').content;
     let h2 = template.querySelector('h2');
     let p = template.querySelector('p');
+    let element = template.querySelector('.js-note-area-content');
     let deleteBtnElm = template.querySelector('.js-delete');
     let colorLensElm = template.querySelector('.js-color-lens');
     let deleteBtnId = 'delete_' + counter;
     let colorLensId = 'colorlens_' + counter;
 
+    element.id = data.id;
     h2.textContent = data.title;
     p.textContent = data.description;
+    element.style.background = data.color;
     deleteBtnElm.id = deleteBtnId;
     colorLensElm.id = colorLensId;
 
@@ -87,7 +90,8 @@ function getNoteData() {
     let title = document.getElementById('title').value;
     let description = document.getElementById('note-description').value;
     let color = '#ffffff';
-    let noteData = { title, description };
+    let id = 'note-content_' + counter;
+    let noteData = { id, title, description, color };
 
     retainData(noteData);
     resetInputFields();
@@ -192,21 +196,35 @@ function renderColors(target) {
  * Event listener for color change
  */
 function onColorChangeListener(target, colorListElement) {
-    colorListElement.addEventListener('click', function(ev) {
+    colorListElement.addEventListener('click', function (ev) {
         ev.stopPropagation();
         let elementToChange = target.parentNode.parentNode;
         let color = colorListElement.getAttribute('data-color');
 
         handleChangeElementColor(elementToChange, color)
-    })
+    });
+
 }
 
-/**
- * Changes element color based on selected one from color palette
- */
 function handleChangeElementColor(element, color) {
     element.style.background = color;
+    saveColorValue(element, color);
 }
+
+function saveColorValue(element, color) {
+    let colorPaletteElm = element.querySelector('.color-palette');
+    let elemId = element.id;
+
+    notesArray.forEach(function(note) {
+        if(note.id === elemId) {
+            note.color = color;
+        }
+    });
+
+    localStorage.setItem('notes', JSON.stringify(notesArray));
+    colorPaletteElm.style.display = 'none';
+}
+
 
 /**
  * Adds event listeners on template delete buttons
