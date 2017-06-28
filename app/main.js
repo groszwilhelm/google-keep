@@ -5,10 +5,12 @@ let pageBody = document.body;
 let note = document.getElementById('note');
 let submitNew = document.getElementById('new-entry');
 let notesArray = [];
+let deleteId = 0;
 
 // Call event listeners
 listeners();
 init();
+
 /**
  * Function will toggle note element's hidden items
  * If the note isn't toggled and the click was on the note it will display the whole note
@@ -26,7 +28,7 @@ function toggle(param) {
     let title = document.getElementById('title');
     let itemSection = document.getElementById('item-section');
 
-    if(isToggled) {
+    if (isToggled) {
         title.style.display = 'none';
         itemSection.style.display = 'none';
         note.style.height = '46px';
@@ -40,20 +42,33 @@ function toggle(param) {
 }
 
 /**
- * Function to save the note
- * Creates an element on the page to display it
+ * Function that renders a template
  */
-function saveNote() {
+function renderNote(data) {
     let template = document.querySelector('template').content;
     let h2 = template.querySelector('h2');
     let p = template.querySelector('p');
-    let data = getNoteData();
+    let deleteBtn = template.querySelector('.js-delete');
+    let deleteBtnId = 'delete_' + deleteId;
 
     h2.textContent = data.title;
     p.textContent = data.description;
+    deleteBtn.id = deleteBtnId;
+
     document.querySelector('#outlet')
         .appendChild(document.importNode(template, true));
-    console.log(notesArray);
+
+    setTemplateDelete(deleteBtnId);
+
+    deleteId ++;
+}
+
+/**
+ * Function to save the note
+ */
+function saveNote() {
+    let data = getNoteData();
+    renderNote(data);
 }
 
 /**
@@ -62,7 +77,7 @@ function saveNote() {
 function getNoteData() {
     let title = document.getElementById('title').value;
     let description = document.getElementById('note-description').value;
-    let noteData = {title, description};
+    let noteData = { title, description };
     retainData(noteData);
 
     return noteData;
@@ -72,9 +87,8 @@ function getNoteData() {
  * Save data to localstorage
  */
 function retainData(data) {
-    notesArray = [];
+    console.log(data);
     notesArray.push(data);
-    localStorage.removeItem('notes');
     localStorage.setItem('notes', JSON.stringify(notesArray));
 }
 
@@ -82,44 +96,66 @@ function retainData(data) {
  * Retrieve data from localstorage
  */
 function getStoredData() {
-    notesArray = [];
-    notesArray.push(JSON.parse(localStorage.getItem('notes')));
+    notesArray = JSON.parse(localStorage.getItem('notes') || '[]');
+    console.log(localStorage.getItem('notes'));
 }
 
 function init() {
+    //clearMemory();
     getStoredData();
     renderStoredNotes();
 }
 
+function clearMemory() {
+    localStorage.clear();
+}
+
 /**
- * buggy with the saving in local storage
+ * Render the templates for stored notes
  */
 function renderStoredNotes() {
+    notesArray.forEach(function (note) {
+        renderNote(note);
+    });
+}
 
-    notesArray.forEach(function(note) {
-        console.log(note);
-        let template = document.querySelector('template').content;
-        let h2 = template.querySelector('h2');
-        let p = template.querySelector('p');
+/**
+ * Function to remove a note
+ * @param {event} event 
+ */
+function removeNotes(e) {
+    let btn = e.target;
+    let index = btn.id.split('_').pop();
 
-        h2.textContent = note.title;
-        p.textContent = note.description;
-        document.querySelector('#outlet')
-            .appendChild(document.importNode(template, true));
-    })
+    notesArray.splice(index, index.length);
+    localStorage.setItem('notes', JSON.stringify(notesArray));
+    init();
+}
+
+/**
+ * Adds event listeners on template delete buttons
+ */
+function setTemplateDelete(deleteBtnId) {
+    let deleteBtn = document.querySelector('#' + deleteBtnId);
+
+    deleteBtn.addEventListener('click', function (ev) {
+        removeNotes(ev);
+        ev.stopPropagation();
+    });
+
 }
 
 function listeners() {
-    pageBody.addEventListener('click', function(ev) {
+    pageBody.addEventListener('click', function (ev) {
         toggle('close');
     });
 
-    note.addEventListener('click', function(ev) {
+    note.addEventListener('click', function (ev) {
         ev.stopPropagation();
         toggle('open');
     });
 
-    submitNew.addEventListener('click', function(ev) {
+    submitNew.addEventListener('click', function (ev) {
         ev.stopPropagation();
         saveNote();
         toggle('close');
