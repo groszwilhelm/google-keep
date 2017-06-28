@@ -32,8 +32,8 @@ function toggle(param) {
 
     if (isToggled) {
         title.style.display = 'none';
-        itemSection.style.display = 'none';
         note.style.height = '46px';
+        itemSection.style.display = 'none';
     } else {
         title.style.display = 'block';
         note.style.height = '138px';
@@ -80,9 +80,16 @@ function getNoteData() {
     let title = document.getElementById('title').value;
     let description = document.getElementById('note-description').value;
     let noteData = { title, description };
+    
     retainData(noteData);
+    resetInputFields();
 
     return noteData;
+}
+
+function resetInputFields() {
+    document.getElementById('title').value = '';
+    document.getElementById('note-description').value = '';
 }
 
 /**
