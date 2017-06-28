@@ -103,13 +103,9 @@ function getStoredData() {
 }
 
 function init() {
-    //clearMemory();
+    deleteId = 0;
     getStoredData();
     renderStoredNotes();
-}
-
-function clearMemory() {
-    localStorage.clear();
 }
 
 /**
@@ -121,16 +117,33 @@ function renderStoredNotes() {
     });
 }
 
+
 /**
  * Function to remove a note
  * @param {event} event 
  */
 function removeNotes(e) {
     let btn = e.target;
+    let target = btn.parentNode.parentNode;
     let index = btn.id.split('_').pop();
 
     notesArray.splice(index, index.length);
     localStorage.setItem('notes', JSON.stringify(notesArray));
+
+    removeElements();
+}
+
+/**
+ * Remove elements from page
+ */
+function removeElements() {
+    let area = document.querySelectorAll('.note-area-content');
+
+    area.forEach(function(area) {
+        area.remove();
+    })
+
+    init();
 }
 
 /**
@@ -143,7 +156,6 @@ function setTemplateDelete(deleteBtnId) {
         removeNotes(ev);
         ev.stopPropagation();
     });
-
 }
 
 function listeners() {
