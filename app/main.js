@@ -5,15 +5,12 @@ let isColorPalette = false;
 let pageBody = document.body;
 let note = document.getElementById('note');
 let submitNew = document.getElementById('new-entry');
+let backgroundColors = ['#ffffff', '#ff8a80', '#ffd180', '#ffff8d', '#cfd8dc', '#80d8ff', '#a7ffeb', '#ccff90'];
 let notesArray = [];
 let counter = 0;
-let backgroundColors = ['#ffffff', '#ff8a80', '#ffd180', '#ffff8d', '#cfd8dc', '#80d8ff', '#a7ffeb', '#ccff90'];
 
 // Load stored notes
 init();
-
-// Call event listeners
-listeners();
 
 /**
  * Function will toggle note element's hidden items
@@ -90,7 +87,7 @@ function getNoteData() {
     let title = document.getElementById('title').value;
     let description = document.getElementById('note-description').value;
     let color = '#ffffff';
-    let id =  counter;
+    let id = counter;
     let noteData = { id, title, description, color };
 
     retainData(noteData);
@@ -123,13 +120,14 @@ function init() {
     counter = 0;
     getStoredData();
     renderStoredNotes();
+    bindEvents();
 }
 
 /**
  * Render the templates for stored notes
  */
 function renderStoredNotes() {
-    notesArray.forEach(function (note) {
+    notesArray.forEach(function(note) {
         renderNote(note);
     });
 }
@@ -154,7 +152,7 @@ function removeNotes(e) {
 function removeElements() {
     let area = document.querySelectorAll('.js-note-area-content');
 
-    area.forEach(function (area) {
+    area.forEach(function(area) {
         area.remove();
     })
 
@@ -176,7 +174,7 @@ function showColors(target) {
 
 function renderColors(target) {
     let colorListWrapElement = document.createElement('ul');
-    colorListWrapElement.className += 'label-list card-panel';
+    colorListWrapElement.className += 'label-list';
 
     if (!target.firstChild) {
         target.appendChild(colorListWrapElement);
@@ -196,7 +194,7 @@ function renderColors(target) {
  * Event listener for color change
  */
 function onColorChangeListener(target, colorListElement) {
-    colorListElement.addEventListener('click', function (ev) {
+    colorListElement.addEventListener('click', function(ev) {
         ev.stopPropagation();
         let elementToChange = target.parentNode.parentNode;
         let color = colorListElement.getAttribute('data-color');
@@ -216,7 +214,7 @@ function saveColorValue(element, color) {
     let elemId = parseInt(element.id.split('_').pop());
 
     notesArray.forEach(function(note) {
-        if(note.id === elemId) {
+        if (note.id === elemId) {
             note.color = color;
         }
     });
@@ -233,28 +231,28 @@ function setTemplateListeners(deleteBtnId, colorLensId) {
     let deleteBtn = document.querySelector('#' + deleteBtnId);
     let colorLensElm = document.querySelector('#' + colorLensId);
 
-    deleteBtn.addEventListener('click', function (ev) {
+    deleteBtn.addEventListener('click', function(ev) {
         ev.stopPropagation();
         removeNotes(ev);
     });
 
-    colorLensElm.addEventListener('click', function (ev) {
+    colorLensElm.addEventListener('click', function(ev) {
         ev.stopPropagation();
         showColors(colorLensElm);
     });
 }
 
-function listeners() {
-    pageBody.addEventListener('click', function (ev) {
+function bindEvents() {
+    pageBody.addEventListener('click', function(ev) {
         toggle('close');
     });
 
-    note.addEventListener('click', function (ev) {
+    note.addEventListener('click', function(ev) {
         ev.stopPropagation();
         toggle('open');
     });
 
-    submitNew.addEventListener('click', function (ev) {
+    submitNew.addEventListener('click', function(ev) {
         ev.stopPropagation();
         saveNote();
         toggle('close');
