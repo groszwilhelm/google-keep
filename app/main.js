@@ -1,9 +1,10 @@
 'use strict';
 
 const pageBody = document.body;
-const note = document.getElementById('note');
+const noteElem = document.getElementById('note');
 const submitNew = document.getElementById('new-entry');
-const title = document.getElementById('title');
+const titleElem = document.getElementById('title');
+const noteDescriptionElem = document.getElementById('note-description');
 const btnItems = document.getElementById('item-section');
 
 const template = document.querySelector('template').content;
@@ -35,18 +36,18 @@ function toggle(param) {
         return;
     }
 
-    changeInputOnToggleState(title, btnItems);
+    changeInputOnToggleState(titleElem, btnItems);
     isToggled = !isToggled;
 }
 
 function changeInputOnToggleState(title, btnItems) {
     if (isToggled) {
         title.style.display = 'none';
-        note.style.height = '46px';
+        noteElem.style.height = '46px';
         btnItems.style.display = 'none';
     } else {
         title.style.display = 'block';
-        note.style.height = '138px';
+        noteElem.style.height = '138px';
         btnItems.style.display = 'block';
     }
 }
@@ -84,8 +85,8 @@ function saveNote() {
  * Method to retrieve a note's title and description
  */
 function getNoteData() {
-    const title = document.getElementById('title').value;
-    const description = document.getElementById('note-description').value;
+    const title = titleElem.value;
+    const description = noteDescriptionElem.value;
     const color = '#ffffff';
     const id = guid();
     const noteData = { id, title, description, color };
@@ -203,13 +204,15 @@ function renderColors(target) {
  * Event listener for color change
  */
 function onColorChangeListener(target, colorListElement) {
-    colorListElement.addEventListener('click', function (ev) {
+    colorListElement.addEventListener('click', handleColorPaletteClick);
+
+    function handleColorPaletteClick(ev) {
         ev.stopPropagation();
         const elementToChange = target.parentNode.parentNode;
         const color = colorListElement.getAttribute('data-color');
 
         handleChangeElementColor(elementToChange, color)
-    });
+    }
 
 }
 
@@ -256,7 +259,7 @@ function setTemplateBinders(deleteBtnId, colorLensId) {
 function bindEvents() {
     window.addEventListener('unload', handleUnload);
     pageBody.addEventListener('click', handlePageBodyClick);
-    note.addEventListener('click', handleNewNoteClick);
+    noteElem.addEventListener('click', handleNewNoteClick);
     submitNew.addEventListener('click', handleNewSubmitClick);
 
     function handlePageBodyClick(ev) {
