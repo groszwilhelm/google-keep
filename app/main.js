@@ -1,13 +1,22 @@
 'use strict';
 
+const pageBody = document.body;
+const note = document.getElementById('note');
+const submitNew = document.getElementById('new-entry');
+const title = document.getElementById('title');
+const btnItems = document.getElementById('item-section');
+
+const template = document.querySelector('template').content;
+const h2 = template.querySelector('h2');
+const p = template.querySelector('p');
+const element = template.querySelector('.js-note-area-content');
+const deleteBtnElm = template.querySelector('.js-delete');
+const colorLensElm = template.querySelector('.js-color-lens');
+const backgroundColors = ['#ffffff', '#ff8a80', '#ffd180', '#ffff8d', '#cfd8dc', '#80d8ff', '#a7ffeb', '#ccff90'];
+
 let isToggled = false;
 let isColorPalette = false;
-let pageBody = document.body;
-let note = document.getElementById('note');
-let submitNew = document.getElementById('new-entry');
-let backgroundColors = ['#ffffff', '#ff8a80', '#ffd180', '#ffff8d', '#cfd8dc', '#80d8ff', '#a7ffeb', '#ccff90'];
 let notesArray = [];
-let counter = 0;
 
 // Load stored notes
 init();
@@ -25,9 +34,6 @@ function toggle(param) {
     if (isToggled && param === 'open') {
         return;
     }
-
-    let title = document.getElementById('title');
-    let btnItems = document.getElementById('item-section');
 
     changeInputOnToggleState(title, btnItems);
     isToggled = !isToggled;
@@ -49,14 +55,8 @@ function changeInputOnToggleState(title, btnItems) {
  * Function that renders a template
  */
 function renderNote(data) {
-    let template = document.querySelector('template').content;
-    let h2 = template.querySelector('h2');
-    let p = template.querySelector('p');
-    let element = template.querySelector('.js-note-area-content');
-    let deleteBtnElm = template.querySelector('.js-delete');
-    let colorLensElm = template.querySelector('.js-color-lens');
-    let deleteBtnId = 'delete_' + counter;
-    let colorLensId = 'colorlens_' + counter;
+    const deleteBtnId = 'delete_' + data.id;
+    const colorLensId = 'colorlens_' + data.id;
 
     element.id = data.id;
     h2.textContent = data.title;
@@ -68,15 +68,15 @@ function renderNote(data) {
     document.querySelector('#outlet')
         .appendChild(document.importNode(template, true));
 
-    setTemplateListeners(deleteBtnId, colorLensId);
-    counter++;
+    setTemplateBinders(deleteBtnId, colorLensId);
 }
 
 /**
  * Function to save the note
  */
 function saveNote() {
-    let data = getNoteData();
+    const data = getNoteData();
+    notesArray.push(data);
     renderNote(data);
 }
 
@@ -84,16 +84,26 @@ function saveNote() {
  * Method to retrieve a note's title and description
  */
 function getNoteData() {
-    let title = document.getElementById('title').value;
-    let description = document.getElementById('note-description').value;
-    let color = '#ffffff';
-    let id = counter;
-    let noteData = { id, title, description, color };
+    const title = document.getElementById('title').value;
+    const description = document.getElementById('note-description').value;
+    const color = '#ffffff';
+    const id = guid();
+    const noteData = { id, title, description, color };
 
-    retainData(noteData);
     resetInputFields();
 
     return noteData;
+}
+
+/**
+ * Method to generate GUID
+ */
+function guid() {
+    function _p8(s) {
+        var p = (Math.random().toString(16)+"000000000").substr(2,8);
+        return s ? "-" + p.substr(0,4) + "-" + p.substr(4,4) : p ;
+    }
+    return _p8() + _p8(true) + _p8(true) + _p8();
 }
 
 function resetInputFields() {
@@ -104,8 +114,7 @@ function resetInputFields() {
 /**
  * Save data to localstorage
  */
-function retainData(data) {
-    notesArray.push(data);
+function retainData() {
     localStorage.setItem('notes', JSON.stringify(notesArray));
 }
 
@@ -117,7 +126,6 @@ function getStoredData() {
 }
 
 function init() {
-    counter = 0;
     getStoredData();
     renderStoredNotes();
     bindEvents();
@@ -127,7 +135,7 @@ function init() {
  * Render the templates for stored notes
  */
 function renderStoredNotes() {
-    notesArray.forEach(function(note) {
+    notesArray.forEach(function (note) {
         renderNote(note);
     });
 }
@@ -136,44 +144,44 @@ function renderStoredNotes() {
  * Function to remove a note
  */
 function removeNotes(e) {
-    let btn = e.target;
-    let target = btn.parentNode.parentNode;
-    let index = btn.id.split('_').pop();
+    const btn = e.target;
+    const target = btn.parentNode.parentNode;
+    const id = btn.id.split('_').pop();
 
-    notesArray.splice(index, index.length);
-    localStorage.setItem('notes', JSON.stringify(notesArray));
-
-    removeElements();
+    for (let i = 0; i < notesArray.length; i++) {
+        if (notesArray[i].id === id) {
+            notesArray.splice(i, 1);
+            removeElements();
+            return;
+        }
+    }
 }
 
 /**
  * Remove elements from page
  */
 function removeElements() {
-    let area = document.querySelectorAll('.js-note-area-content');
+    const area = document.getElementById('outlet');
 
-    area.forEach(function(area) {
-        area.remove();
-    })
-
-    init();
+    area.innerHTML = '';
+    renderStoredNotes();
 }
 
 /**
  * Toggle color palette view
  */
 function showColors(target) {
-    let parent = target.parentNode;
-    let colorPaletteElm = parent.querySelector('.color-palette');
+    const parent = target.parentNode;
+    const colorPaletteElm = parent.querySelector('.color-palette');
 
-    isColorPalette ? colorPaletteElm.style.display = 'none' : colorPaletteElm.style.display = 'block';
+    colorPaletteElm.style.display = isColorPalette ? 'none' : 'block';
     renderColors(colorPaletteElm);
 
     isColorPalette = !isColorPalette;
 }
 
 function renderColors(target) {
-    let colorListWrapElement = document.createElement('ul');
+    const colorListWrapElement = document.createElement('ul');
     colorListWrapElement.className += 'label-list';
 
     if (!target.firstChild) {
@@ -181,6 +189,7 @@ function renderColors(target) {
 
         for (let i = 0; i < backgroundColors.length; i++) {
             let colorListElement = document.createElement('li');
+
             colorListElement.className = 'js-color-palette_' + i;
             colorListElement.setAttribute('data-color', backgroundColors[i]);
             colorListElement.setAttribute('style', 'background-color: ' + backgroundColors[i]);
@@ -194,10 +203,10 @@ function renderColors(target) {
  * Event listener for color change
  */
 function onColorChangeListener(target, colorListElement) {
-    colorListElement.addEventListener('click', function(ev) {
+    colorListElement.addEventListener('click', function (ev) {
         ev.stopPropagation();
-        let elementToChange = target.parentNode.parentNode;
-        let color = colorListElement.getAttribute('data-color');
+        const elementToChange = target.parentNode.parentNode;
+        const color = colorListElement.getAttribute('data-color');
 
         handleChangeElementColor(elementToChange, color)
     });
@@ -206,55 +215,67 @@ function onColorChangeListener(target, colorListElement) {
 
 function handleChangeElementColor(element, color) {
     element.style.background = color;
-    saveColorValue(element, color);
+    setColorValue(element, color);
 }
 
-function saveColorValue(element, color) {
-    let colorPaletteElm = element.querySelector('.color-palette');
-    let elemId = parseInt(element.id.split('_').pop());
 
-    notesArray.forEach(function(note) {
-        if (note.id === elemId) {
+function setColorValue(element, color) {
+    const colorPaletteElm = element.querySelector('.color-palette');
+    const elemId = element.id.split('_').pop();
+
+    notesArray.forEach(function (note) {
+        if (note.id === element.id) {
             note.color = color;
         }
     });
 
-    localStorage.setItem('notes', JSON.stringify(notesArray));
     colorPaletteElm.style.display = 'none';
 }
-
 
 /**
  * Adds event listeners on template delete buttons
  */
-function setTemplateListeners(deleteBtnId, colorLensId) {
-    let deleteBtn = document.querySelector('#' + deleteBtnId);
-    let colorLensElm = document.querySelector('#' + colorLensId);
+function setTemplateBinders(deleteBtnId, colorLensId) {
+    const deleteBtn = document.querySelector('#' + deleteBtnId);
+    const colorLensElm = document.querySelector('#' + colorLensId);
 
-    deleteBtn.addEventListener('click', function(ev) {
+    deleteBtn.addEventListener('click', handleDeleteBtnClick);
+    colorLensElm.addEventListener('click', handleColorLensClick);
+
+    function handleDeleteBtnClick(ev) {
         ev.stopPropagation();
         removeNotes(ev);
-    });
+    }
 
-    colorLensElm.addEventListener('click', function(ev) {
+    function handleColorLensClick(ev) {
         ev.stopPropagation();
         showColors(colorLensElm);
-    });
+    }
 }
 
 function bindEvents() {
-    pageBody.addEventListener('click', function(ev) {
-        toggle('close');
-    });
+    window.addEventListener('unload', handleUnload);
+    pageBody.addEventListener('click', handlePageBodyClick);
+    note.addEventListener('click', handleNewNoteClick);
+    submitNew.addEventListener('click', handleNewSubmitClick);
 
-    note.addEventListener('click', function(ev) {
+    function handlePageBodyClick(ev) {
+        toggle('close')
+    }
+
+    function handleNewNoteClick(ev) {
         ev.stopPropagation();
         toggle('open');
-    });
+    }
 
-    submitNew.addEventListener('click', function(ev) {
+    function handleNewSubmitClick(ev) {
         ev.stopPropagation();
         saveNote();
         toggle('close');
-    });
+    }
+
+    // Saves data to local storage after refresh or closing the page
+    function handleUnload(ev) {
+        retainData();
+    }
 }
